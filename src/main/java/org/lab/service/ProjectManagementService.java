@@ -63,8 +63,8 @@ public class ProjectManagementService {
 
         var updatedProject = project.addTeamMember(user, role);
 
-        if (role instanceof UserRole.TeamLeader) {
-            updatedProject = updatedProject.assignTeamLeader(user);
+        if (role instanceof UserRole.TeamLeader teamLeader) {
+            updatedProject = updatedProject.assignTeamLeader(teamLeader.user());
         }
 
         projects.put(projectId, updatedProject);
@@ -443,5 +443,53 @@ public class ProjectManagementService {
 
     public Map<Long, BugReport> getBugReports() {
         return Map.copyOf(bugReports);
+    }
+
+    public String getUserRoleDescription(User user, Long projectId) {
+        var project = getProjectById(projectId);
+        var role = project.teamMembers().get(user);
+
+        if (role == null) {
+            return STR."\{user.name()} не участвует в проекте";
+        }
+
+        return switch (role) {
+            case UserRole.Manager manager ->
+                STR."Менеджер \{manager.user().name()} управляет проектом и командой";
+            case UserRole.TeamLeader teamLeader ->
+                STR."Тимлидер \{teamLeader.user().name()} координирует техническую работу";
+            case UserRole.Developer developer -> {
+                var userTickets = getUserTickets(developer.user());
+                yield STR."Разработчик \{developer.user().name()} работает над \{userTickets.size()} задачами";
+            }
+            case UserRole.Tester tester -> {
+                var bugReportsToFix = getBugReportsToFix(tester.user());
+                yield STR."Тестировщик \{tester.user().name()} отслеживает \{bugReportsToFix.size()} багов";
+            }
+        };
+    }
+
+    public void validateStatusTransition(Object currentStatus, Object newStatus) {
+        String errorMessage = null;
+
+        if (currentStatus instanceof TicketStatus ticketStatus && newStatus instanceof TicketStatus newTicketStatus) {
+            if (!ticketStatus.canTransitionTo(newTicketStatus)) {
+                errorMessage = STR."Невозможен переход из статуса \{ticketStatus.getDisplayName()} в \{newTicketStatus.getDisplayName()}";
+            }
+        } else if (currentStatus instanceof MilestoneStatus milestoneStatus && newStatus instanceof MilestoneStatus newMilestoneStatus) {
+            if (!milestoneStatus.canTransitionTo(newMilestoneStatus)) {
+                errorMessage = STR."Невозможен переход из статуса \{milestoneStatus.getDisplayName()} в \{newMilestoneStatus.getDisplayName()}";
+            }
+        } else if (currentStatus instanceof BugReportStatus bugStatus && newStatus instanceof BugReportStatus newBugStatus) {
+            if (!bugStatus.canTransitionTo(newBugStatus)) {
+                errorMessage = STR."Невозможен переход из статуса \{bugStatus.getDisplayName()} в \{newBugStatus.getDisplayName()}";
+            }
+        } else {
+            errorMessage = "Несовместимые типы статусов";
+        }
+
+        if (errorMessage != null) {
+            throw new IllegalStateException(errorMessage);
+        }
     }
 }
