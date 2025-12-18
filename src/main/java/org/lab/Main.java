@@ -12,40 +12,48 @@ import java.time.LocalDate;
 public class Main {
 
 public static void main(String[] args) {
-    IO.println("Система управления проектами - демонстрация современных возможностей Java");
-    IO.println("=" + "=".repeat(80));
+    IO.println("Система управления проектами");
+    IO.println(STR."=\{"=".repeat(80)}");
 
     var service = new ProjectManagementService();
     var manager = new User(1L, "Анна Петрова", "anna@company.com");
     var teamLeader = new User(2L, "Иван Сидоров", "ivan@company.com");
-    var developer = new User(3L, "Мария Козлова", "maria@company.com");
-    var developer2 = new User(4L, "Алексей Иванов", "alexey@company.com");
-    var tester = new User(5L, "Елена Смирнова", "elena@company.com");
 
-    demonstrateProjectCreation(service, manager);
+    var developers = java.util.List.of(
+            new User(3L, "Мария Козлова", "maria@company.com"),
+            new User(4L, "Алексей Иванов", "alexey@company.com"),
+            new User(5L, "Дмитрий Попов", "dmitry@company.com")
+    );
+
+    var testers = java.util.List.of(
+            new User(6L, "Елена Смирнова", "elena@company.com"),
+            new User(7L, "Андрей Волков", "andrey@company.com")
+    );
+
+    createNewProject(service, manager);
     IO.println();
 
-    demonstrateTeamManagement(service, manager, teamLeader, developer, developer2, tester);
+    setupProjectTeam(service, manager, teamLeader, developers, testers);
     IO.println();
 
-    demonstrateMilestoneAndTicketManagement(service, manager, developer);
+    planProjectMilestones(service, manager, developers.getFirst());
     IO.println();
 
-    demonstrateFunctionalProgramming(service);
+    generateProjectReports(service);
     IO.println();
 
-    demonstrateRoleBasedFunctionality(service, manager, developer, tester);
+    processWorkflows(service, manager, developers.getFirst(), testers.getFirst());
     IO.println();
 
-    demonstrateUserFunctions(service, manager, developer, tester);
+    checkUserActivities(service, manager, developers.getFirst(), testers.getFirst());
     IO.println();
 
-    demonstratePatternMatching();
+    handleStatusUpdates();
 
-    IO.println("Демонстрация завершена успешно!");
+    IO.println("Система управления проектами запущена успешно!");
 }
 
-private static void demonstrateProjectCreation(ProjectManagementService service, User manager) {
+private static void createNewProject(ProjectManagementService service, User manager) {
     IO.println("Создание проекта:");
 
     var project = service.createProject(
@@ -59,20 +67,27 @@ private static void demonstrateProjectCreation(ProjectManagementService service,
     IO.println(STR."   Дата создания: \{project.createdAt()}");
 }
 
-private static void demonstrateTeamManagement(ProjectManagementService service, User manager,
-                                            User teamLeader, User developer1, User developer2, User tester) {
-    IO.println("Управление командой:");
+private static void setupProjectTeam(ProjectManagementService service, User manager,
+                                     User teamLeader, java.util.List<User> developers, java.util.List<User> testers) {
+    IO.println("Формирование команды проекта:");
 
     var projectId = service.getProjects().keySet().iterator().next();
 
     service.addTeamMember(projectId, teamLeader, new UserRole.TeamLeader(teamLeader));
-    service.addTeamMember(projectId, developer1, new UserRole.Developer(developer1));
-    service.addTeamMember(projectId, developer2, new UserRole.Developer(developer2));
-    service.addTeamMember(projectId, tester, new UserRole.Tester(tester));
+
+    developers.forEach(dev ->
+        service.addTeamMember(projectId, dev, new UserRole.Developer(dev))
+    );
+
+    testers.forEach(tester ->
+        service.addTeamMember(projectId, tester, new UserRole.Tester(tester))
+    );
 
     var project = service.getProjects().get(projectId);
 
     IO.println(STR."   Команда проекта (\{project.teamMembers().size()} участников):");
+    IO.println(STR."   - Разработчиков: \{developers.size()}");
+    IO.println(STR."   - Тестировщиков: \{testers.size()}");
 
     project.teamMembers().forEach((user, role) -> {
         var permissions = switch (role) {
@@ -85,9 +100,9 @@ private static void demonstrateTeamManagement(ProjectManagementService service, 
     });
 }
 
-private static void demonstrateMilestoneAndTicketManagement(ProjectManagementService service,
-                                                          User manager, User developer) {
-    IO.println("Управление майлстоунами и тикетами:");
+private static void planProjectMilestones(ProjectManagementService service,
+                                          User manager, User developer) {
+    IO.println("Планирование вех и задач:");
 
     var projectId = service.getProjects().keySet().iterator().next();
 
@@ -100,10 +115,10 @@ private static void demonstrateMilestoneAndTicketManagement(ProjectManagementSer
             manager
     );
 
-    IO.println(STR."   Майлстоун '\{milestone.name()}' создан (статус: \{milestone.status().getDisplayName()})");
+    IO.println(STR."   Веха '\{milestone.name()}' создана (статус: \{milestone.status().getDisplayName()})");
 
     service.changeMilestoneStatus(milestone.id(), new MilestoneStatus.Active());
-    IO.println(STR."   Майлстоун активирован");
+    IO.println(STR."   Веха активирована");
 
     var ticket1 = service.createTicket(projectId, milestone.id(),
             "Реализация аутентификации", "Создать систему входа/регистрации", manager);
@@ -120,8 +135,8 @@ private static void demonstrateMilestoneAndTicketManagement(ProjectManagementSer
     IO.println(STR."   Баг-репорт создан: '\{bugReport.title()}'");
 }
 
-private static void demonstrateFunctionalProgramming(ProjectManagementService service) {
-    IO.println("Функциональное программирование:");
+private static void generateProjectReports(ProjectManagementService service) {
+    IO.println("Анализ и отчеты по проекту:");
 
     var projectId = service.getProjects().keySet().iterator().next();
 
@@ -136,8 +151,10 @@ private static void demonstrateFunctionalProgramming(ProjectManagementService se
     IO.println(report.getStatistics());
 }
 
-private static void demonstratePatternMatching() {
-    IO.println("Демонстрация pattern matching:");
+private static void handleStatusUpdates() {
+    IO.println("Обработка изменений статусов:");
+
+    var service = new ProjectManagementService();
 
     var statuses = java.util.List.of(
             new TicketStatus.New(),
@@ -152,17 +169,24 @@ private static void demonstratePatternMatching() {
             case TicketStatus.New newStatus -> STR."Новый тикет требует внимания";
             case TicketStatus.InProgress inProgress -> STR."Тикет в работе";
             case TicketStatus.Completed completed -> STR."Тикет завершен";
-            case MilestoneStatus.Active active -> STR."Майлстоун активен";
+            case MilestoneStatus.Active active -> STR."Веха активна";
             case BugReportStatus.Fixed fixed -> STR."Баг исправлен";
             default -> STR."Неизвестный статус: \{status.getClass().getSimpleName()}";
         };
         IO.println(STR."   \{message}");
     });
+
+    try {
+        service.validateStatusTransition(new TicketStatus.New(), new TicketStatus.Completed());
+        IO.println("   Невалидный переход не обнаружен");
+    } catch (IllegalStateException e) {
+        IO.println(STR."   Pattern matching validation: \{e.getMessage()}");
+    }
 }
 
-private static void demonstrateRoleBasedFunctionality(ProjectManagementService service, User manager,
-                                                    User developer, User tester) {
-    IO.println("Демонстрация ролевых функций:");
+private static void processWorkflows(ProjectManagementService service, User manager,
+                                     User developer, User tester) {
+    IO.println("Выполнение рабочих процессов:");
 
     var projectId = service.getProjects().keySet().iterator().next();
 
@@ -188,27 +212,29 @@ private static void demonstrateRoleBasedFunctionality(ProjectManagementService s
         service.closeBugReport(bugReport.id(), manager);
     }
 
-    IO.println("   Продемонстрированы функции всех ролей");
+    IO.println("   Рабочие процессы выполнены");
 }
 
-private static void demonstrateUserFunctions(ProjectManagementService service, User manager,
-                                           User developer, User tester) {
-    IO.println("Демонстрация пользовательских функций:");
+private static void checkUserActivities(ProjectManagementService service, User manager,
+                                        User developer, User tester) {
+    IO.println("Проверка активности пользователей:");
+
+    var projectId = service.getProjects().keySet().iterator().next();
+
+    var managerDescription = service.getUserRoleDescription(manager, projectId);
+    IO.println(STR."   \{managerDescription}");
+
+    var developerDescription = service.getUserRoleDescription(developer, projectId);
+    IO.println(STR."   \{developerDescription}");
+
+    var testerDescription = service.getUserRoleDescription(tester, projectId);
+    IO.println(STR."   \{testerDescription}");
 
     var userProjects = service.getUserProjects(developer);
-    IO.println(STR."   Проекты разработчика \{developer.name()}: \{userProjects.size()}");
-
-    var userTickets = service.getUserTickets(developer);
-    IO.println(STR."   Тикеты разработчика \{developer.name()}: \{userTickets.size()}");
-
-    var userBugReports = service.getUserBugReports(developer);
-    IO.println(STR."   Баг-репорты разработчика \{developer.name()}: \{userBugReports.size()}");
+    IO.println(STR."   Проекты разработчика: \{userProjects.size()}");
 
     var bugReportsToFix = service.getBugReportsToFix(developer);
     IO.println(STR."   Баг-репорты для исправления: \{bugReportsToFix.size()}");
-
-    var testerProjects = service.getUserProjects(tester);
-    IO.println(STR."   Проекты тестировщика \{tester.name()}: \{testerProjects.size()}");
 }
 
 }

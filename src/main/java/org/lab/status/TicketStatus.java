@@ -10,19 +10,19 @@ public sealed interface TicketStatus
 
     default boolean canTransitionTo(TicketStatus newStatus) {
         return switch (this) {
-            case New newStatus1 -> newStatus instanceof Accepted;
-            case Accepted accepted -> newStatus instanceof InProgress;
-            case InProgress inProgress -> newStatus instanceof Completed;
-            case Completed completed -> false;
+            case New _ -> newStatus instanceof Accepted;
+            case Accepted _ -> newStatus instanceof InProgress;
+            case InProgress _ -> newStatus instanceof Completed;
+            case Completed _ -> false;
         };
     }
 
     default String getDisplayName() {
         return switch (this) {
-            case New newStatus -> "Новый";
-            case Accepted accepted -> "Принятый";
-            case InProgress inProgress -> "В процессе выполнения";
-            case Completed completed -> "Выполнен";
+            case New _ -> "Новый";
+            case Accepted _ -> "Принятый";
+            case InProgress _ -> "В процессе выполнения";
+            case Completed _ -> "Выполнен";
         };
     }
 }

@@ -23,10 +23,10 @@ public record Milestone(
 ) {
     public Milestone {
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Название майлстоуна не может быть пустым");
+            throw new IllegalArgumentException("Название вехи не может быть пустым");
         }
         if (projectId == null) {
-            throw new IllegalArgumentException("Майлстоун должен быть привязан к проекту");
+            throw new IllegalArgumentException("Веха должна быть привязана к проекту");
         }
         if (startDate == null || endDate == null) {
             throw new IllegalArgumentException("Даты начала и окончания должны быть указаны");

@@ -27,7 +27,7 @@ public record Ticket(
             throw new IllegalArgumentException("Тикет должен быть привязан к проекту");
         }
         if (milestoneId == null) {
-            throw new IllegalArgumentException("Тикет должен быть привязан к майлстоуну");
+            throw new IllegalArgumentException("Тикет должен быть привязан к вехе");
         }
         if (assignedDevelopers == null) {
             assignedDevelopers = Set.of();

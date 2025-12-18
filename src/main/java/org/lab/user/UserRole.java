@@ -60,10 +60,10 @@ public sealed interface UserRole
 
     default String getRoleName() {
         return switch (this) {
-            case Manager manager -> "Менеджер";
-            case TeamLeader teamLeader -> "Тимлидер";
-            case Developer developer -> "Разработчик";
-            case Tester tester -> "Тестировщик";
+            case Manager _ -> "Менеджер";
+            case TeamLeader _ -> "Тимлидер";
+            case Developer _ -> "Разработчик";
+            case Tester _ -> "Тестировщик";
         };
     }
 

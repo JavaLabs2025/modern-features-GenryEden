@@ -35,7 +35,7 @@ public record ProjectReport(
                 Команда: \{teamSize} участников
                 \{formatTeamByRole()}
 
-                Майлстоуны: \{milestones.size()}
+                Вех: \{milestones.size()}
 
                 Тикеты: \{totalTickets} (завершено: \{completedTickets})
                 \{formatTicketsByStatus()}

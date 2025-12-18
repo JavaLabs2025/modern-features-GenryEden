@@ -9,17 +9,17 @@ public sealed interface MilestoneStatus
 
     default boolean canTransitionTo(MilestoneStatus newStatus) {
         return switch (this) {
-            case Open open -> newStatus instanceof Active;
-            case Active active -> newStatus instanceof Closed;
-            case Closed closed -> false;
+            case Open _ -> newStatus instanceof Active;
+            case Active _ -> newStatus instanceof Closed;
+            case Closed _ -> false;
         };
     }
 
     default String getDisplayName() {
         return switch (this) {
-            case Open open -> "Открыт";
-            case Active active -> "Активен";
-            case Closed closed -> "Закрыт";
+            case Open _ -> "Открыт";
+            case Active _ -> "Активен";
+            case Closed _ -> "Закрыт";
         };
     }
 }

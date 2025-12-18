@@ -33,7 +33,7 @@ class ProjectTest {
                 () -> assertEquals(description, project.description()),
                 () -> assertEquals(manager, project.manager()),
                 () -> assertTrue(project.teamMembers().containsKey(manager)),
-                () -> assertTrue(project.teamMembers().get(manager) instanceof UserRole.Manager),
+                () -> assertInstanceOf(UserRole.Manager.class, project.teamMembers().get(manager)),
                 () -> assertTrue(project.teamLeader().isEmpty()),
                 () -> assertNotNull(project.createdAt())
             );
@@ -70,7 +70,7 @@ class ProjectTest {
 
             assertAll(
                 () -> assertTrue(updatedProject.teamMembers().containsKey(developer)),
-                () -> assertTrue(updatedProject.teamMembers().get(developer) instanceof UserRole.Developer),
+                () -> assertInstanceOf(UserRole.Developer.class, updatedProject.teamMembers().get(developer)),
                 () -> assertEquals(2, updatedProject.teamMembers().size())
             );
         }
@@ -93,15 +93,13 @@ class ProjectTest {
 
             var updatedProject = project.assignTeamLeader(developer);
 
-            assertAll(
-                () -> assertTrue(updatedProject.teamLeader().isPresent()),
-                () -> assertEquals(developer, updatedProject.teamLeader().get()),
-                () -> assertTrue(updatedProject.teamMembers().get(developer) instanceof UserRole.TeamLeader)
-            );
+            assertTrue(updatedProject.teamLeader().isPresent());
+            assertEquals(developer, updatedProject.teamLeader().get());
+            assertInstanceOf(UserRole.TeamLeader.class, updatedProject.teamMembers().get(developer));
         }
 
         @Test
-        @DisplayName("Назначение тимлидера, который не участвует в проекте, должно выбрасывать исключение")
+        @DisplayName("Назначение тимлида, который не участвует в проекте, должно выбрасывать исключение")
         void shouldThrowExceptionForNonTeamMemberAsLeader() {
             var project = Project.create("Project", "Description", manager);
             var outsider = new User(3L, "Сторонний пользователь", "outsider@example.com");

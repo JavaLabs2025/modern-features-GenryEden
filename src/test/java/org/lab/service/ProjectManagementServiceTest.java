@@ -66,15 +66,13 @@ class ProjectManagementServiceTest {
             service.addTeamMember(project.id(), teamLeader, new UserRole.TeamLeader(teamLeader));
 
             var updatedProject = service.getProjects().get(project.id());
-            assertAll(
-                () -> assertTrue(updatedProject.teamLeader().isPresent()),
-                () -> assertEquals(teamLeader, updatedProject.teamLeader().get())
-            );
+            assertTrue(updatedProject.teamLeader().isPresent());
+            assertEquals(teamLeader, updatedProject.teamLeader().get());
         }
     }
 
     @Nested
-    @DisplayName("Управление майлстоунами")
+    @DisplayName("Управление вехами")
     class MilestoneManagement {
 
         private Project project;
@@ -85,12 +83,12 @@ class ProjectManagementServiceTest {
         }
 
         @Test
-        @DisplayName("Создание майлстоуна")
+        @DisplayName("Создание вехи")
         void shouldCreateMilestone() {
             var milestone = service.createMilestone(
                 project.id(),
-                "Первый майлстоун",
-                "Описание майлстоуна",
+                "Первая веха",
+                "Описание вехи",
                 LocalDate.now(),
                 LocalDate.now().plusDays(30),
                 manager
@@ -98,8 +96,8 @@ class ProjectManagementServiceTest {
 
             assertAll(
                 () -> assertNotNull(milestone.id()),
-                () -> assertEquals("Первый майлстоун", milestone.name()),
-                () -> assertTrue(milestone.status() instanceof MilestoneStatus.Open),
+                () -> assertEquals("Первая веха", milestone.name()),
+                () -> assertInstanceOf(MilestoneStatus.Open.class, milestone.status()),
                 () -> assertTrue(service.getMilestones().containsKey(milestone.id()))
             );
         }
@@ -115,7 +113,7 @@ class ProjectManagementServiceTest {
             service.changeMilestoneStatus(milestone.id(), new MilestoneStatus.Active());
 
             var updatedMilestone = service.getMilestones().get(milestone.id());
-            assertTrue(updatedMilestone.status() instanceof MilestoneStatus.Active);
+            assertInstanceOf(MilestoneStatus.Active.class, updatedMilestone.status());
         }
 
         @Test
@@ -166,7 +164,7 @@ class ProjectManagementServiceTest {
             assertAll(
                 () -> assertNotNull(ticket.id()),
                 () -> assertEquals("Новая задача", ticket.title()),
-                () -> assertTrue(ticket.status() instanceof TicketStatus.New),
+                () -> assertInstanceOf(TicketStatus.New.class, ticket.status()),
                 () -> assertTrue(service.getTickets().containsKey(ticket.id()))
             );
         }
@@ -182,7 +180,7 @@ class ProjectManagementServiceTest {
             service.changeTicketStatus(ticket.id(), new TicketStatus.Accepted());
 
             var updatedTicket = service.getTickets().get(ticket.id());
-            assertTrue(updatedTicket.status() instanceof TicketStatus.Accepted);
+            assertInstanceOf(TicketStatus.Accepted.class, updatedTicket.status());
         }
     }
 

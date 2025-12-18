@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StatusTransitionTest {
 
     @TestFactory
-    @DisplayName("Динамические тесты переходов статусов майлстоуна")
+    @DisplayName("Динамические тесты переходов статусов вехи")
     Stream<DynamicTest> milestoneStatusTransitions() {
         return Stream.of(
             DynamicTest.dynamicTest("Open -> Active (разрешено)",
@@ -78,13 +78,11 @@ class StatusTransitionTest {
     @Test
     @DisplayName("Переходы статусов баг-репорта")
     void bugReportStatusTransitions() {
-        // given
         var newStatus = new BugReportStatus.New();
         var fixed = new BugReportStatus.Fixed();
         var tested = new BugReportStatus.Tested();
         var closed = new BugReportStatus.Closed();
 
-        // then
         assertAll(
             () -> assertTrue(newStatus.canTransitionTo(fixed)),
             () -> assertTrue(fixed.canTransitionTo(tested)),
